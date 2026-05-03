@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>طلب استشارة | منصة الماس للاستشارات المالية</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="request">
+  <header class="page-header">
+    <div class="container">
+      <span class="small-badge">نموذج استقبال العميل</span>
+      <h1>تسجيل طلب استشارة مالية</h1>
+      <p>
+        يستخدم هذا النموذج لتسجيل طلبات الأفراد والمشاريع التجارية، وجمع البيانات الأساسية اللازمة
+        لبدء التشخيص المالي وإعداد التقرير الأولي.
+      </p>
+    </div>
+  </header>
+
+  <nav class="main-nav no-print">
+    <div class="container nav-inner">
+      <a href="index.html">لوحة التحكم</a>
+      <a class="active" href="request.html">طلب استشارة</a>
+      <a href="services.html">الخدمات والباقات</a>
+    </div>
+  </nav>
+
+  <main class="container main-space">
+    <form id="requestForm" class="card form-card">
+      <div class="section-title">
+        <h2>بيانات العميل</h2>
+        <span class="pill">المرحلة الأولى</span>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>اسم العميل / المشروع</label>
+          <input id="clientName" required placeholder="مثال: محمد أحمد / مؤسسة النور">
+        </div>
+
+        <div>
+          <label>نوع العميل</label>
+          <select id="clientType" onchange="toggleBusinessFields(); updatePreview();">
+            <option value="فرد">فرد</option>
+            <option value="تجاري">تجاري</option>
+          </select>
+        </div>
+
+        <div>
+          <label>رقم الهاتف</label>
+          <input id="clientPhone" placeholder="مثال: 777000000">
+        </div>
+
+        <div>
+          <label>البريد الإلكتروني</label>
+          <input id="clientEmail" type="email" placeholder="example@email.com">
+        </div>
+
+        <div>
+          <label>الخدمة المطلوبة</label>
+          <select id="clientService" onchange="updatePreview()">
+            <option>تشخيص مالي شخصي</option>
+            <option>تنظيم ميزانية شخصية</option>
+            <option>خطة سداد ديون</option>
+            <option>خطة ادخار واستثمار</option>
+            <option>تشخيص مشروع تجاري</option>
+            <option>دراسة جدوى</option>
+            <option>إعادة هيكلة مشروع متعثر</option>
+            <option>مدير مالي خارجي</option>
+          </select>
+        </div>
+
+        <div>
+          <label>أولوية الطلب</label>
+          <select id="clientPriority">
+            <option>عادية</option>
+            <option>متوسطة</option>
+            <option>عاجلة</option>
+          </select>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="section-title">
+        <h2>البيانات المالية الأساسية</h2>
+        <span class="pill">المرحلة الثانية</span>
+      </div>
+
+      <div class="form-grid">
+        <div>
+          <label>الدخل / الإيرادات الشهرية</label>
+          <input id="income" type="number" min="0" placeholder="0" oninput="updatePreview()">
+        </div>
+
+        <div>
+          <label>المصروفات الشهرية</label>
+          <input id="expenses" type="number" min="0" placeholder="0" oninput="updatePreview()">
+        </div>
+
+        <div>
+          <label>إجمالي الديون والالتزامات</label>
+          <input id="debt" type="number" min="0" placeholder="0" oninput="updatePreview()">
+        </div>
+
+        <div>
+          <label>الأصول أو الممتلكات التقريبية</label>
+          <input id="assets" type="number" min="0" placeholder="0">
+        </div>
+
+        <div>
+          <label>عدد أفراد الأسرة / الموظفين</label>
+          <input id="peopleCount" type="number" min="0" placeholder="0">
+        </div>
+
+        <div>
+          <label>العملة</label>
+          <select id="currency">
+            <option value="ر.ي">ريال يمني</option>
+            <option value="$">دولار</option>
+            <option value="ر.س">ريال سعودي</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="businessFields" class="business-box hidden">
+        <hr>
+        <div class="section-title">
+          <h2>بيانات إضافية للمشاريع التجارية</h2>
+          <span class="pill warning">خاص بالتجاري</span>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label>نوع النشاط</label>
+            <input id="businessActivity" placeholder="مطعم، مقاولات، متجر، عيادة...">
+          </div>
+          <div>
+            <label>عمر المشروع</label>
+            <input id="businessAge" placeholder="مثال: سنتان">
+          </div>
+          <div>
+            <label>عدد الفروع</label>
+            <input id="branches" type="number" min="0" placeholder="0">
+          </div>
+          <div>
+            <label>هل توجد حسابات منتظمة؟</label>
+            <select id="hasAccounts">
+              <option>نعم</option>
+              <option>جزئياً</option>
+              <option>لا</option>
+            </select>
+          </div>
+          <div>
+            <label>أكبر مشكلة حالية</label>
+            <input id="mainProblem" placeholder="ضعف ربح، ديون، سيولة، تسعير...">
+          </div>
+          <div>
+            <label>المستندات المتوفرة</label>
+            <input id="documents" placeholder="فواتير، كشوفات، قوائم، سجلات...">
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="section-title">
+        <h2>وصف الحالة والهدف</h2>
+        <span class="pill">المرحلة الثالثة</span>
+      </div>
+
+      <label>اشرح المشكلة أو الهدف المطلوب من الاستشارة</label>
+      <textarea id="notes" placeholder="اكتب تفاصيل المشكلة، الهدف، الديون، التوسع، الخسائر، أو المطلوب من المكتب..."></textarea>
+
+      <div class="preview-box">
+        <h3>معاينة التحليل السريع</h3>
+        <div id="quickPreview" class="summary-list"></div>
+      </div>
+
+      <div class="actions no-print">
+        <button class="btn primary" type="submit">حفظ الطلب</button>
+        <button class="btn light" type="reset" onclick="setTimeout(updatePreview, 50)">تفريغ النموذج</button>
+        <a class="btn secondary" href="index.html">العودة للوحة التحكم</a>
+      </div>
+    </form>
+  </main>
+
+  <footer class="footer">
+    <div class="container">منصة الماس للاستشارات المالية ودراسات الأعمال</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

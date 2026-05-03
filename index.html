@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>لوحة التحكم | منصة الماس للاستشارات المالية</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="dashboard">
+  <header class="top-header">
+    <div class="container header-grid">
+      <div>
+        <span class="small-badge">منصة مجانية تعمل عبر المتصفح</span>
+        <h1>منصة الماس للاستشارات المالية ودراسات الأعمال</h1>
+        <p>
+          نظام مبدئي لإدارة الاستشارات المالية الشخصية والتجارية، تسجيل العملاء، تحليل البيانات،
+          متابعة المهام، وإصدار تقارير أولية قابلة للطباعة والحفظ بصيغة PDF.
+        </p>
+        <div class="header-actions no-print">
+          <a class="btn primary" href="request.html">تسجيل طلب جديد</a>
+          <a class="btn light" href="services.html">عرض الخدمات والباقات</a>
+          <button class="btn secondary" onclick="window.print()">طباعة / حفظ PDF</button>
+        </div>
+      </div>
+
+      <div class="header-card">
+        <h3>ماذا تفعل هذه النسخة؟</h3>
+        <ul>
+          <li>حفظ بيانات العملاء داخل المتصفح.</li>
+          <li>تحليل الدخل والمصروفات والديون.</li>
+          <li>تصنيف المخاطر المالية تلقائياً.</li>
+          <li>إدارة خدمات الأفراد والمشاريع.</li>
+          <li>توليد تقرير أولي وطباعته.</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <nav class="main-nav no-print">
+    <div class="container nav-inner">
+      <a class="active" href="index.html">لوحة التحكم</a>
+      <a href="request.html">طلب استشارة</a>
+      <a href="services.html">الخدمات والباقات</a>
+      <button onclick="addDemoData()">إضافة بيانات تجريبية</button>
+      <button class="danger-btn" onclick="clearAllData()">مسح البيانات</button>
+    </div>
+  </nav>
+
+  <main class="container main-space">
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span>عدد العملاء</span>
+        <strong id="statClients">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>إجمالي الدخل / الإيرادات</span>
+        <strong id="statIncome">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>إجمالي المصروفات</span>
+        <strong id="statExpenses">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>صافي الفائض / العجز</span>
+        <strong id="statNet">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>إجمالي الديون</span>
+        <strong id="statDebt">0</strong>
+      </div>
+      <div class="stat-card">
+        <span>متوسط مؤشر الصحة المالية</span>
+        <strong id="statScore">0%</strong>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div class="section-title">
+          <h2>ملخص الوضع العام</h2>
+          <span class="pill">تحديث تلقائي</span>
+        </div>
+        <div id="generalSummary" class="summary-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h2>مؤشرات المخاطر</h2>
+          <span class="pill warning">رقابة مالية</span>
+        </div>
+        <div id="riskSummary" class="summary-list"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>قائمة العملاء والطلبات</h2>
+        <div class="table-tools no-print">
+          <input id="searchInput" type="search" placeholder="بحث باسم العميل أو الخدمة..." oninput="renderDashboard()">
+          <select id="typeFilter" onchange="renderDashboard()">
+            <option value="all">كل الأنواع</option>
+            <option value="فرد">أفراد</option>
+            <option value="تجاري">تجاري</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>العميل</th>
+              <th>النوع</th>
+              <th>الخدمة</th>
+              <th>الدخل / الإيرادات</th>
+              <th>المصروفات</th>
+              <th>الديون</th>
+              <th>الفائض</th>
+              <th>المؤشر</th>
+              <th>الحالة</th>
+              <th class="no-print">إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="clientsTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card">
+        <div class="section-title">
+          <h2>مولد التقرير الاستشاري</h2>
+          <span class="pill">تقرير أولي</span>
+        </div>
+        <label>عنوان التقرير</label>
+        <input id="reportTitle" value="تقرير تشخيص مالي أولي">
+        <label>ملاحظات المدير / المستشار</label>
+        <textarea id="reportNotes">بناءً على البيانات المسجلة، يتم تقييم الوضع المالي من خلال مقارنة الدخل بالمصروفات والديون، ثم تحديد مستوى المخاطر والتوصيات العامة للتحسين.</textarea>
+        <div class="actions no-print">
+          <button class="btn primary" onclick="generateReport()">توليد التقرير</button>
+          <button class="btn secondary" onclick="window.print()">طباعة / حفظ PDF</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">
+          <h2>نسخ احتياطي للبيانات</h2>
+          <span class="pill success">مهم</span>
+        </div>
+        <p class="muted">
+          لأن هذه النسخة مجانية وتحفظ البيانات داخل المتصفح، يجب تصدير نسخة احتياطية من وقت لآخر.
+        </p>
+        <div class="actions no-print">
+          <button class="btn light" onclick="exportData()">تصدير البيانات JSON</button>
+          <label class="btn light file-label">
+            استيراد بيانات
+            <input type="file" accept="application/json" onchange="importData(event)">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section id="reportOutput" class="card report-card"></section>
+
+    <section class="card notice">
+      <h3>تنبيه تشغيلي</h3>
+      <p>
+        هذه نسخة بداية مجانية بدون خادم وبدون قاعدة بيانات خارجية. البيانات تحفظ في جهاز ومتصفح المستخدم فقط.
+        عند العمل بفريق وعدة أجهزة، يتم تطويرها لاحقاً إلى نسخة بقاعدة بيانات وصلاحيات دخول.
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      منصة الماس للاستشارات المالية ودراسات الأعمال - نسخة تشغيل مجانية أولية
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
