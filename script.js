@@ -97,6 +97,15 @@ function initApp() {
   if (page === "services") {
     // لا يوجد إجراء إلزامي في صفحة الخدمات حالياً
   }
+
+  if (page === "client-form") {
+    toggleClientBusinessFields();
+    updateClientPreview();
+  }
+
+  if (page === "import-link") {
+    importClientFromLink();
+  }
 }
 
 function renderDashboard() {
@@ -461,12 +470,17 @@ function importData(event) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      if (!Array.isArray(data)) {
-        alert("ملف غير صحيح. يجب أن يحتوي على قائمة بيانات.");
+      const currentClients = getClients();
+
+      if (Array.isArray(data)) {
+        saveClients([...data, ...currentClients]);
+      } else if (data && typeof data === "object" && data.name) {
+        saveClients([{ ...data, id: data.id || String(Date.now()), importedAt: new Date().toISOString() }, ...currentClients]);
+      } else {
+        alert("ملف غير صحيح. يجب أن يحتوي على طلب عميل أو قائمة بيانات.");
         return;
       }
 
-      saveClients(data);
       renderDashboard();
       alert("تم استيراد البيانات بنجاح.");
     } catch {
@@ -485,5 +499,194 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+
+/* =========================================================
+   نموذج العميل العام + رابط الاستيراد التلقائي
+   ========================================================= */
+
+function buildClientRequestFromPublicForm() {
+  return {
+    id: String(Date.now()),
+    createdAt: new Date().toISOString(),
+    source: "نموذج العميل العام",
+    name: getValue("cfName"),
+    type: getValue("cfType"),
+    phone: getValue("cfPhone"),
+    email: getValue("cfEmail"),
+    service: getValue("cfService"),
+    priority: getValue("cfPriority"),
+    income: Number(getValue("cfIncome")) || 0,
+    expenses: Number(getValue("cfExpenses")) || 0,
+    debt: Number(getValue("cfDebt")) || 0,
+    assets: Number(getValue("cfAssets")) || 0,
+    peopleCount: Number(getValue("cfPeopleCount")) || 0,
+    currency: getValue("cfCurrency"),
+    businessActivity: getValue("cfBusinessActivity"),
+    businessAge: getValue("cfBusinessAge"),
+    branches: Number(getValue("cfBranches")) || 0,
+    hasAccounts: getValue("cfHasAccounts"),
+    mainProblem: getValue("cfMainProblem"),
+    documents: getValue("cfDocuments"),
+    notes: getValue("cfNotes")
+  };
+}
+
+function encodeRequestData(data) {
+  const json = JSON.stringify(data);
+  return btoa(unescape(encodeURIComponent(json)))
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
+}
+
+function decodeRequestData(encoded) {
+  let base64 = encoded.replaceAll("-", "+").replaceAll("_", "/");
+  while (base64.length % 4) base64 += "=";
+  const json = decodeURIComponent(escape(atob(base64)));
+  return JSON.parse(json);
+}
+
+function generateClientRequestLink() {
+  const client = buildClientRequestFromPublicForm();
+  if (!client.name) {
+    alert("يرجى إدخال اسم العميل أو المشروع أولاً.");
+    return;
+  }
+
+  const encoded = encodeRequestData(client);
+  const baseUrl = location.href.replace(/client-form\.html.*$/, "import-link.html");
+  const link = baseUrl + "#data=" + encoded;
+
+  const resultBox = document.getElementById("clientResultBox");
+  const linkBox = document.getElementById("generatedRequestLink");
+  const whatsapp = document.getElementById("whatsappSendLink");
+
+  if (resultBox) resultBox.classList.remove("hidden");
+  if (linkBox) linkBox.value = link;
+
+  const message = "طلب استشارة مالية جديد - الرجاء فتح الرابط لاستيراد البيانات إلى التطبيق:%0A" + encodeURIComponent(link);
+  if (whatsapp) whatsapp.href = "https://wa.me/?text=" + message;
+
+  alert("تم إنشاء رابط الطلب. انسخه أو أرسله عبر واتساب.");
+}
+
+function downloadClientRequestFile() {
+  const client = buildClientRequestFromPublicForm();
+  if (!client.name) {
+    alert("يرجى إدخال اسم العميل أو المشروع أولاً.");
+    return;
+  }
+
+  const safeName = client.name.replace(/[\\/:*?"<>|]/g, "-").slice(0, 40) || "client";
+  const blob = new Blob([JSON.stringify(client, null, 2)], { type: "application/json" });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "طلب-استشارة-" + safeName + ".json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function copyClientFormLink() {
+  navigator.clipboard.writeText(location.href).then(function() {
+    alert("تم نسخ رابط النموذج. أرسله للعميل.");
+  }).catch(function() {
+    alert("انسخ الرابط من شريط العنوان في المتصفح.");
+  });
+}
+
+function copyGeneratedRequestLink() {
+  const linkBox = document.getElementById("generatedRequestLink");
+  if (!linkBox) return;
+
+  navigator.clipboard.writeText(linkBox.value).then(function() {
+    alert("تم نسخ رابط الطلب.");
+  }).catch(function() {
+    linkBox.select();
+    document.execCommand("copy");
+    alert("تم نسخ رابط الطلب.");
+  });
+}
+
+function toggleClientBusinessFields() {
+  const type = getValue("cfType");
+  const box = document.getElementById("clientBusinessFields");
+  if (!box) return;
+
+  if (type === "تجاري") {
+    box.classList.remove("hidden");
+  } else {
+    box.classList.add("hidden");
+  }
+}
+
+function updateClientPreview() {
+  const box = document.getElementById("clientQuickPreview");
+  if (!box) return;
+
+  const income = Number(getValue("cfIncome")) || 0;
+  const expenses = Number(getValue("cfExpenses")) || 0;
+  const debt = Number(getValue("cfDebt")) || 0;
+  const currency = getValue("cfCurrency") || "ر.ي";
+
+  const tempClient = { income, expenses, debt };
+  const score = calculateScore(tempClient);
+  const net = income - expenses;
+
+  box.innerHTML = `
+    <div class="summary-item"><span>الفائض / العجز الشهري</span><strong>${formatMoney(net, currency)}</strong></div>
+    <div class="summary-item"><span>مؤشر الصحة المالية</span><strong class="${riskClass(score)}">${score}% - ${riskText(score)}</strong></div>
+    <div class="summary-item"><span>التوصية السريعة</span><small>${getRecommendation(tempClient)}</small></div>
+  `;
+}
+
+function importClientFromLink() {
+  const status = document.getElementById("importStatus");
+  const hash = location.hash || "";
+
+  if (!hash.startsWith("#data=")) {
+    if (status) {
+      status.innerHTML = `<h2>لا توجد بيانات في الرابط</h2><p>تأكد من فتح الرابط الكامل الذي أرسله العميل.</p>`;
+    }
+    return;
+  }
+
+  try {
+    const encoded = hash.replace("#data=", "");
+    const client = decodeRequestData(encoded);
+
+    if (!client || !client.name) {
+      throw new Error("بيانات غير مكتملة");
+    }
+
+    const clients = getClients();
+    const newClient = {
+      ...client,
+      id: client.id || String(Date.now()),
+      importedAt: new Date().toISOString()
+    };
+
+    const exists = clients.some(item => item.id === newClient.id);
+    if (!exists) {
+      clients.unshift(newClient);
+      saveClients(clients);
+    }
+
+    if (status) {
+      status.innerHTML = `
+        <h2>تم استيراد الطلب بنجاح ✅</h2>
+        <p>تمت إضافة بيانات العميل: <strong>${escapeHtml(newClient.name)}</strong></p>
+        <p class="muted">يمكنك الآن فتح لوحة التحكم ومراجعة الطلب.</p>
+      `;
+    }
+  } catch (error) {
+    if (status) {
+      status.innerHTML = `<h2>تعذر استيراد الطلب</h2><p>الرابط غير صحيح أو تم نسخه ناقصاً. اطلب من العميل إرسال الرابط مرة أخرى أو ملف JSON.</p>`;
+    }
+  }
+}
+
 
 document.addEventListener("DOMContentLoaded", initApp);

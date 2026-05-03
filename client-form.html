@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>نموذج العميل | منصة الماس للاستشارات المالية</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="client-form">
+  <header class="page-header">
+    <div class="container">
+      <span class="small-badge">نموذج يرسله المكتب للعميل</span>
+      <h1>نموذج طلب استشارة مالية</h1>
+      <p>يقوم العميل بتعبئة هذا النموذج، ثم يرسل للمكتب إما ملف الطلب أو رابط الطلب. عند فتح رابط الطلب من جهاز المكتب يتم إضافة البيانات إلى التطبيق تلقائياً.</p>
+    </div>
+  </header>
+
+  <nav class="main-nav no-print">
+    <div class="container nav-inner">
+      <a href="index.html">لوحة التحكم</a>
+      <a href="request.html">طلب استشارة داخلي</a>
+      <a class="active" href="client-form.html">نموذج العميل</a>
+      <a href="services.html">الخدمات والباقات</a>
+    </div>
+  </nav>
+
+  <main class="container main-space">
+    <section class="card notice">
+      <h3>طريقة الاستخدام</h3>
+      <p>انسخ رابط هذه الصفحة وأرسله للعميل. بعد التعبئة يستطيع العميل الضغط على <strong>إنشاء رابط الطلب</strong> وإرسال الرابط لك على واتساب، أو الضغط على <strong>تحميل ملف الطلب</strong> وإرساله لك كملف.</p>
+    </section>
+
+    <form id="publicClientForm" class="card form-card">
+      <div class="section-title"><h2>بيانات العميل الأساسية</h2><span class="pill">يعبئه العميل</span></div>
+
+      <div class="form-grid">
+        <div><label>اسم العميل / المشروع</label><input id="cfName" required placeholder="اكتب الاسم الكامل أو اسم المشروع"></div>
+        <div><label>نوع العميل</label><select id="cfType" onchange="toggleClientBusinessFields(); updateClientPreview();"><option value="فرد">فرد</option><option value="تجاري">تجاري</option></select></div>
+        <div><label>رقم الهاتف</label><input id="cfPhone" placeholder="رقم واتساب أو اتصال"></div>
+        <div><label>البريد الإلكتروني</label><input id="cfEmail" type="email" placeholder="اختياري"></div>
+        <div><label>الخدمة المطلوبة</label><select id="cfService" onchange="updateClientPreview()"><option>تشخيص مالي شخصي</option><option>تنظيم ميزانية شخصية</option><option>خطة سداد ديون</option><option>خطة ادخار واستثمار</option><option>تشخيص مشروع تجاري</option><option>دراسة جدوى</option><option>إعادة هيكلة مشروع متعثر</option><option>مدير مالي خارجي</option><option>ملف تمويل واستثمار</option></select></div>
+        <div><label>أولوية الطلب</label><select id="cfPriority"><option>عادية</option><option>متوسطة</option><option>عاجلة</option></select></div>
+      </div>
+
+      <hr>
+      <div class="section-title"><h2>البيانات المالية</h2><span class="pill warning">أرقام تقريبية مقبولة كبداية</span></div>
+
+      <div class="form-grid">
+        <div><label>الدخل / الإيرادات الشهرية</label><input id="cfIncome" type="number" min="0" placeholder="0" oninput="updateClientPreview()"></div>
+        <div><label>المصروفات الشهرية</label><input id="cfExpenses" type="number" min="0" placeholder="0" oninput="updateClientPreview()"></div>
+        <div><label>إجمالي الديون والالتزامات</label><input id="cfDebt" type="number" min="0" placeholder="0" oninput="updateClientPreview()"></div>
+        <div><label>الأصول أو الممتلكات التقريبية</label><input id="cfAssets" type="number" min="0" placeholder="0"></div>
+        <div><label>عدد أفراد الأسرة / الموظفين</label><input id="cfPeopleCount" type="number" min="0" placeholder="0"></div>
+        <div><label>العملة</label><select id="cfCurrency"><option value="ر.ي">ريال يمني</option><option value="$">دولار</option><option value="ر.س">ريال سعودي</option></select></div>
+      </div>
+
+      <div id="clientBusinessFields" class="business-box hidden">
+        <hr>
+        <div class="section-title"><h2>بيانات إضافية للمشروع التجاري</h2><span class="pill warning">تظهر عند اختيار تجاري</span></div>
+        <div class="form-grid">
+          <div><label>نوع النشاط</label><input id="cfBusinessActivity" placeholder="مطعم، متجر، مقاولات، عيادة..."></div>
+          <div><label>عمر المشروع</label><input id="cfBusinessAge" placeholder="مثال: 3 سنوات"></div>
+          <div><label>عدد الفروع</label><input id="cfBranches" type="number" min="0" placeholder="0"></div>
+          <div><label>هل توجد حسابات منتظمة؟</label><select id="cfHasAccounts"><option>نعم</option><option>جزئياً</option><option>لا</option></select></div>
+          <div><label>أكبر مشكلة حالية</label><input id="cfMainProblem" placeholder="ضعف ربح، ديون، سيولة، تسعير..."></div>
+          <div><label>المستندات المتوفرة</label><input id="cfDocuments" placeholder="فواتير، كشوفات، قوائم، سجلات..."></div>
+        </div>
+      </div>
+
+      <hr>
+      <label>شرح المشكلة أو الهدف المطلوب</label>
+      <textarea id="cfNotes" placeholder="اكتب تفاصيل المشكلة أو الهدف من الاستشارة..."></textarea>
+
+      <div class="preview-box">
+        <h3>معاينة سريعة قبل الإرسال</h3>
+        <div id="clientQuickPreview" class="summary-list"></div>
+      </div>
+
+      <div class="actions no-print">
+        <button class="btn primary" type="button" onclick="generateClientRequestLink()">إنشاء رابط الطلب</button>
+        <button class="btn light" type="button" onclick="downloadClientRequestFile()">تحميل ملف الطلب JSON</button>
+        <button class="btn secondary" type="button" onclick="copyClientFormLink()">نسخ رابط النموذج للعميل</button>
+      </div>
+    </form>
+
+    <section id="clientResultBox" class="card result-box hidden">
+      <div class="section-title"><h2>بيانات الإرسال</h2><span class="pill success">جاهز للإرسال</span></div>
+      <label>رابط الطلب الجاهز للإرسال إلى المكتب</label>
+      <textarea id="generatedRequestLink" readonly></textarea>
+      <div class="actions no-print">
+        <button class="btn primary" onclick="copyGeneratedRequestLink()">نسخ رابط الطلب</button>
+        <a id="whatsappSendLink" class="btn light" target="_blank" rel="noopener">إرساله عبر واتساب</a>
+      </div>
+      <p class="muted">عند فتح هذا الرابط من جهاز المكتب، ستتم إضافة بيانات الطلب إلى التطبيق تلقائياً.</p>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container">منصة الماس للاستشارات المالية ودراسات الأعمال</div></footer>
+  <script src="script.js"></script>
+</body>
+</html>

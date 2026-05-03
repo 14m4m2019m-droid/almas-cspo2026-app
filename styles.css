@@ -557,3 +557,7 @@ tr:last-child td {
     break-inside: avoid;
   }
 }
+
+
+.result-box textarea { min-height: 90px; }
+.result-box.hidden { display: none; }
